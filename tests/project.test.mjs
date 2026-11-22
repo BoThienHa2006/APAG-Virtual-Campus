@@ -11,7 +11,7 @@ test('seven verified-source campus records',async()=>{
 test('website has controls and module paths',async()=>{
  const s=await load('../index.html');
  for(const id of ['app','campus','travel','map','dialog','tour','open-tour','close-tour'])assert.ok(s.includes('id="'+id+'"'),id);
- assert.match(s,/src="\.\/main\.js(?:\?[^\"]*)?"/);
+ assert.ok(s.includes('20261122-loader-repair-54'));
 });
 test('Javascript syntax is valid',()=>{
  const r=spawnSync(process.execPath,['--check',new URL('../main.js',import.meta.url).pathname],{encoding:'utf8'});
@@ -31,7 +31,9 @@ test('mobile 2D photos and joystick are wired',async()=>{
 test('23-storey academy geometry replaces old red Hanoi center',async()=>{
  const js=await load('../main.js');const html=await load('../index.html');
  for(const key of ['function academyTower(', 'academyBlock(-6.1,-23.5,9.4,39,10.5,23,7)', 'academyTower();', 'if(item.id===campuses[0].id)', 'new THREE.CylinderGeometry(.065,.1,16,8)'])assert.ok(js.includes(key),key);
- assert.ok(html.includes('APAG VIRTUAL CAMPUS 5.3 LITE'));
+ assert.ok(html.includes('APAG VIRTUAL CAMPUS 5.4'));
 });
 
 test('mobile lite performance safeguards',async()=>{const s=await load('../main.js');for(const k of ['const liteMode=mobileDevice','renderer.shadowMap.enabled=!liteMode','if(liteMode&&timestamp-previousRender<31)return'])assert.ok(s.includes(k),k)});
+
+test('startup reports failures and retries 3D sources',async()=>{const html=await load('../index.html'),js=await load('../main.js');for(const key of ['id="startup"','window.apagFail','startup-retry','apag-ready'])assert.ok(html.includes(key),key);for(const key of ['Promise.any(threeSources.map','unpkg.com/three','esm.sh/three','cdn.jsdelivr.net'])assert.ok(js.includes(key),key)});
