@@ -1,6 +1,17 @@
-import * as THREE from 'three';
+/* Load Three.js with independent CDN fallbacks. A failed CDN must not leave a blank screen. */
+const threeSources=[
+ 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js',
+ 'https://unpkg.com/three@0.160.1/build/three.module.js',
+ 'https://esm.sh/three@0.160.1?bundle',
+ 'https://cdn.skypack.dev/three@0.160.1'
+];
+let THREE;
+for(const url of threeSources){
+ try{THREE=await import(url);break}catch(error){console.warn('Three.js source failed',url,error)}
+}
+if(!THREE)throw new Error('Không tải được thư viện 3D Three.js từ các máy chủ dự phòng. Hãy thử mạng khác hoặc tải lại trang.');
 const $=id=>document.getElementById(id);
-const campuses=await fetch('./data/campuses.json').then(r=>{if(!r.ok)throw Error('Không tải được danh sách cơ sở');return r.json()});
+const campuses=await fetch('./data/campuses.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Không tải được danh sách cơ sở (HTTP '+r.status+')');return r.json()});
 const scene=new THREE.Scene();scene.background=new THREE.Color('#91c3e4');scene.fog=new THREE.Fog('#91c3e4',60,145);
 const mobileDevice=matchMedia('(max-width:850px),(pointer:coarse)').matches;
 const params=new URLSearchParams(location.search);
@@ -179,4 +190,4 @@ function blocked(x,z){return colliders.some(c=>Math.abs(x-c.x)<c.w/2+.55&&Math.a
 const targetCam=overview?new THREE.Vector3(62,68,78):focus.clone().add(new THREE.Vector3(Math.sin(yaw)*Math.cos(pitch)*zoom,Math.sin(pitch)*zoom,Math.cos(yaw)*Math.cos(pitch)*zoom));
 if(!overview){targetCam.y=Math.max(1.25,targetCam.y);for(let i=0;i<24&&blocked(targetCam.x,targetCam.z)&&targetCam.y<14;i++){targetCam.x=THREE.MathUtils.lerp(targetCam.x,focus.x,.16);targetCam.z=THREE.MathUtils.lerp(targetCam.z,focus.z,.16);targetCam.y=THREE.MathUtils.lerp(targetCam.y,focus.y+3,.16)}}
 camera.position.lerp(targetCam,Math.min(1,dt*8));camera.lookAt(focus);updatePhotoBoard();for(const p of points)p.ring.rotation.y+=dt*.7;near=points.find(p=>Math.hypot(player.position.x-p.x,player.position.z-p.z)<2.8)||null;$('prompt').textContent=near?'ⓔ Nhấn E: '+near.title:'Đến gần vòng sáng rồi nhấn E';minimap();renderer.render(scene,camera)}
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});world(campuses[0].id);frame();if(new URLSearchParams(location.search).has('photos'))openPhotos();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});world(campuses[0].id);frame();document.dispatchEvent(new Event('apag-ready'));if(new URLSearchParams(location.search).has('photos'))openPhotos();
