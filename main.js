@@ -6,10 +6,7 @@ const threeSources=[
  'https://cdn.skypack.dev/three@0.160.1'
 ];
 let THREE;
-for(const url of threeSources){
- try{THREE=await import(url);break}catch(error){console.warn('Three.js source failed',url,error)}
-}
-if(!THREE)throw new Error('Không tải được thư viện 3D Three.js từ các máy chủ dự phòng. Hãy thử mạng khác hoặc tải lại trang.');
+try{THREE=await Promise.any(threeSources.map(url=>import(url)))}catch(error){console.error('Three.js CDNs unavailable',error);throw new Error('Không tải được thư viện 3D từ các nguồn dự phòng. Kiểm tra mạng và thử tải lại trang.')}
 const $=id=>document.getElementById(id);
 const campuses=await fetch('./data/campuses.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Không tải được danh sách cơ sở (HTTP '+r.status+')');return r.json()});
 const scene=new THREE.Scene();scene.background=new THREE.Color('#91c3e4');scene.fog=new THREE.Fog('#91c3e4',60,145);
