@@ -11,7 +11,7 @@ test('seven verified-source campus records',async()=>{
 test('website has controls and module paths',async()=>{
  const s=await load('../index.html');
  for(const id of ['app','campus','travel','map','dialog','tour','open-tour','close-tour'])assert.ok(s.includes('id="'+id+'"'),id);
- assert.ok(s.includes('src="./main.js"'));
+ assert.match(s,/src="\.\/main\.js(?:\?[^\"]*)?"/);
 });
 test('Javascript syntax is valid',()=>{
  const r=spawnSync(process.execPath,['--check',new URL('../main.js',import.meta.url).pathname],{encoding:'utf8'});
@@ -20,4 +20,10 @@ test('Javascript syntax is valid',()=>{
 test('3D core features retained',async()=>{
  const s=await load('../main.js');
  for(const k of ['function minimap(', 'function blocked(', 'function interact(', 'panoramaScene', 'camera.position.lerp'])assert.ok(s.includes(k),k);
+});
+
+test('mobile 2D photos and joystick are wired',async()=>{
+ const html=await load('../index.html'),js=await load('../main.js');
+ for(const id of ['joystick','mode-toggle','photo-board','photo-gallery','photos-button','close-photos'])assert.ok(html.includes('id="'+id+'"'),id);
+ for(const key of ['function updatePhotoBoard(', 'function openPhotos(', 'function setControlMode('])assert.ok(js.includes(key),key);
 });
