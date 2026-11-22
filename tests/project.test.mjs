@@ -31,5 +31,7 @@ test('mobile 2D photos and joystick are wired',async()=>{
 test('23-storey academy geometry replaces old red Hanoi center',async()=>{
  const js=await load('../main.js');const html=await load('../index.html');
  for(const key of ['function academyTower(', 'academyBlock(-6.1,-23.5,9.4,39,10.5,23,7)', 'academyTower();', 'if(item.id===campuses[0].id)', 'new THREE.CylinderGeometry(.065,.1,16,8)'])assert.ok(js.includes(key),key);
- assert.ok(html.includes('APAG VIRTUAL CAMPUS 5.2'));
+ assert.ok(html.includes('APAG VIRTUAL CAMPUS 5.3 LITE'));
 });
+
+test('mobile lite performance safeguards',async()=>{const s=await load('../main.js');for(const k of ['const liteMode=mobileDevice','renderer.shadowMap.enabled=!liteMode','if(liteMode&&timestamp-previousRender<31)return'])assert.ok(s.includes(k),k)});
